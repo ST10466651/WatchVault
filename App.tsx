@@ -30,7 +30,7 @@ function Tabs() {
         tabBarInactiveTintColor: '#aaa',
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '700',
+          fontWeight: '600',
         },
       }}
     >
