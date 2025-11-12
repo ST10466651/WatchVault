@@ -1,0 +1,53 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # allows manual triggering from GitHub UI
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      # Step 1: Checkout your repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Install Expo CLI and EAS CLI
+      - name: Install Expo and EAS CLI
+        run: |
+          npm install -g expo-cli eas-cli
+
+      # Step 5: Login to Expo with EAS token
+      - name: Login to Expo
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          eas login --token $EXPO_TOKEN
+
+      # Step 6: Build iOS IPA using EAS
+      - name: Build iOS
+        env:
+          EXPO_APPLE_ID: ${{ secrets.APPLE_ID }}
+          EXPO_APPLE_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: |
+          eas build --platform ios --profile production --non-interactive
+
+      # Step 7: Upload IPA as GitHub artifact
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: ./dist/*.ipa
